@@ -12,6 +12,8 @@ pub enum Errors {
     #[error(transparent)]
     ReadConfigFileError(#[from] std::io::Error),
 
+    #[error(transparent)]
+    DoubleOpenError(#[from] named_lock::Error),
     //#[error("invalid header (expected {expected:?}, found {found:?})")]
     //InvalidHeader { expected: String, found: String },
     #[error("unknown error")]

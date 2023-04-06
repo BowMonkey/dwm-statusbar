@@ -1,6 +1,8 @@
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 
+use utillib::Errors;
+
 fn main() -> Result<(), Errors> {
     // prevent double open
     let lock = named_lock::NamedLock::create("dwm-statusbar")?;
@@ -33,7 +35,7 @@ fn main() -> Result<(), Errors> {
         //do things
     }
 
+    // time to die, clean up
+    // reset dwm statusbar send: xsetroot -name ''
     Ok(())
-    // reset dwm statusbar
-    // send: xsetroot -name ''
 }
