@@ -1,6 +1,7 @@
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 
+use utillib::scheduler::*;
 use utillib::Errors;
 
 fn main() -> Result<(), Errors> {
@@ -25,17 +26,13 @@ fn main() -> Result<(), Errors> {
 
     let running = Arc::new(AtomicBool::new(true));
     let r = running.clone();
-
     ctrlc::set_handler(move || {
+        println!("received Ctrl-C, set running flag to false;");
         r.store(false, Ordering::SeqCst);
     })
     .expect("Error setting Ctrl-C handler");
 
-    while running.load(Ordering::SeqCst) {
-        //do things
-    }
+    run_scheduler(running);
 
-    // time to die, clean up
-    // reset dwm statusbar send: xsetroot -name ''
     Ok(())
 }

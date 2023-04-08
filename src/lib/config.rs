@@ -12,7 +12,7 @@ pub struct Config {
 }
 impl Config {
     pub fn new() -> Result<Config> {
-        let mut conf = Config::default();
+        let conf = Config::default();
 
         // if config file not exist, create one with example
         if !Config::config_file_exist() {
@@ -36,19 +36,29 @@ impl Config {
 impl Default for Config {
     fn default() -> Self {
         Config {
-            modules: vec![Module::default()],
+            modules: vec![Module::example()],
         }
     }
 }
 
 pub fn load_config() -> Result<Config> {
-    let setting_str = fs::read_to_string(&Config::config_file_path())?;
-    let val: Config = serde_json::from_str(&setting_str)?;
-    Ok(val)
+    let mut conf;
+    if Config::config_file_exist() {
+        let setting_str = fs::read_to_string(Config::config_file_path())?;
+        conf = serde_json::from_str(&setting_str)?;
+    } else {
+        conf = Config::new()?;
+    }
+    clean_config(&mut conf);
+    Ok(conf)
 }
 
+// this function only use when config file is not exist
 pub fn save_config(config: &Config) -> Result<()> {
     let contents = serde_json::to_string_pretty(&config)?;
     fs::write(Config::config_file_path(), contents.as_bytes())?;
     Ok(())
 }
+
+// clean config, correct errors if exists
+fn clean_config(_config: &mut Config) {}

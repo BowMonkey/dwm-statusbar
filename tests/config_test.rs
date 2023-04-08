@@ -6,25 +6,25 @@ use utillib::{config::*, Errors, Module};
 fn create_and_save_config() {
     if Config::config_file_exist() {
         std::fs::remove_file(Config::config_file_path()).unwrap();
-        let conf = load_config();
-        match conf {
-            Ok(mut cnf) => {
-                cnf.modules.push(Module::example());
-                println!("{:#?}", cnf.modules);
-                save_config(&cnf).unwrap();
-            }
-            Err(e) => {
-                panic!("Load config file error. error:{}", e);
-            }
+    }
+    let conf = load_config();
+    match conf {
+        Ok(mut cnf) => {
+            cnf.modules.push(Module::example());
+            println!("{:#?}", cnf.modules);
+            save_config(&cnf).unwrap();
         }
-        if !Config::config_file_exist() {
-            panic!("save file error.");
-        } else {
-            println!(
-                "config file path:{:#?}",
-                Config::config_file_path().to_str()
-            );
+        Err(e) => {
+            panic!("Load config file error. error:{}", e);
         }
+    }
+    if !Config::config_file_exist() {
+        panic!("save file error.");
+    } else {
+        println!(
+            "config file path:{:#?}",
+            Config::config_file_path().to_str()
+        );
     }
 }
 

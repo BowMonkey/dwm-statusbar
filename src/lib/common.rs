@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use std::env;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum CallType {
@@ -8,8 +9,8 @@ pub enum CallType {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct DwmMsg {
-    // process name will be call
-    window_name: String,
+    // process path_name with absolute path
+    path_name: String,
     icon_fg_color: String,
     icon_bg_color: String,
     default_icon: String,
@@ -27,7 +28,7 @@ impl DwmMsg {
 impl Default for DwmMsg {
     fn default() -> Self {
         DwmMsg {
-            window_name: "".to_string(),
+            path_name: "".to_string(),
             icon_fg_color: "".to_string(),
             icon_bg_color: "".to_string(),
             default_icon: "".to_string(),
@@ -40,19 +41,19 @@ impl Default for DwmMsg {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Module {
-    window_name: String,
-    icon_fg_color: String,
-    icon_bg_color: String,
-    default_icon: String,
-    text_fg_color: String,
-    text_bg_color: String,
-    default_text: String,
-    // module position you want to show, might not success
-    order: u32,
+    pub path_name: String,
+    pub icon_fg_color: String,
+    pub icon_bg_color: String,
+    pub default_icon: String,
+    pub text_fg_color: String,
+    pub text_bg_color: String,
+    pub default_text: String,
     // interval in seconds
-    exec_interval: u32,
+    pub exec_interval: u32,
+    // seconds
+    pub max_exec_time: u32,
     // call type
-    call_type: CallType,
+    pub call_type: CallType,
 }
 impl Module {
     pub fn new() -> Self {
@@ -60,33 +61,37 @@ impl Module {
     }
 
     pub fn example() -> Self {
+        let mut path = env::current_dir().unwrap();
+        path.push("bin");
+        path.push("Hello");
+
         Module {
-            window_name: "Hello".to_string(),
+            path_name: path.to_str().unwrap().to_string(),
             icon_fg_color: "#61afef".to_string(),
             icon_bg_color: "#2e323a".to_string(),
             default_icon: "".to_string(),
             text_fg_color: "#61afef".to_string(),
             text_bg_color: "#2e323a".to_string(),
             default_text: "Hello".to_string(),
-            order: 0,
             exec_interval: 1,
             call_type: CallType::Direct,
+            max_exec_time: 1,
         }
     }
 }
 impl Default for Module {
     fn default() -> Self {
         Module {
-            window_name: "".to_string(),
+            path_name: "".to_string(),
             icon_fg_color: "".to_string(),
             icon_bg_color: "".to_string(),
             default_icon: "".to_string(),
             text_fg_color: "".to_string(),
             text_bg_color: "".to_string(),
             default_text: "".to_string(),
-            order: 0,
             exec_interval: 1,
             call_type: CallType::Direct,
+            max_exec_time: 1,
         }
     }
 }
