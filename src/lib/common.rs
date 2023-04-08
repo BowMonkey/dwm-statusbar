@@ -2,12 +2,6 @@ use serde::{Deserialize, Serialize};
 use std::env;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub enum CallType {
-    // send process output to dwm directly
-    Direct,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct DwmMsg {
     // process path_name with absolute path
     path_name: String,
@@ -52,8 +46,6 @@ pub struct Module {
     pub exec_interval: u32,
     // seconds
     pub max_exec_time: u32,
-    // call type
-    pub call_type: CallType,
 }
 impl Module {
     pub fn new() -> Self {
@@ -74,7 +66,6 @@ impl Module {
             text_bg_color: "#2e323a".to_string(),
             default_text: "Hello".to_string(),
             exec_interval: 1,
-            call_type: CallType::Direct,
             max_exec_time: 1,
         }
     }
@@ -90,7 +81,6 @@ impl Default for Module {
             text_bg_color: "".to_string(),
             default_text: "".to_string(),
             exec_interval: 1,
-            call_type: CallType::Direct,
             max_exec_time: 1,
         }
     }
