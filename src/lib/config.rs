@@ -64,31 +64,7 @@ pub fn save_config(config: &Config) -> Result<()> {
 // clean config, correct errors if exists
 fn clean_config(config: &mut Config) {
     for item in &mut config.modules {
-        if !(check_color(&item.icon_fg_color)
-            && check_color(&item.icon_bg_color)
-            && check_color(&item.text_fg_color)
-            && check_color(&item.text_bg_color))
-        {
-            set_error_info(item);
-        }
         correct_time(&mut item.exec_interval);
         correct_time(&mut item.max_exec_time);
     }
-}
-
-fn set_error_info(module: &mut Module) {
-    module.icon_bg_color = "#ff0000".to_string();
-    module.icon_fg_color = "#ffffff".to_string();
-    module.default_icon = "".to_string();
-
-    module.text_fg_color = "#ff0000".to_string();
-    module.text_bg_color = "#ffffff".to_string();
-    let name = module.path_name.clone();
-    let name = PathBuf::from(name)
-        .file_name()
-        .unwrap()
-        .to_str()
-        .unwrap()
-        .to_string();
-    module.default_text = name;
 }
