@@ -1,6 +1,6 @@
 use core::panic;
 
-use utillib::{config::*, Errors, Module};
+use utillib::{config::*, Module};
 
 #[test]
 fn create_and_save_config() {
