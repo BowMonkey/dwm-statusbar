@@ -1,6 +1,10 @@
+use std::env;
+use std::path::PathBuf;
+use std::process::Command;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 
+use utillib::config::*;
 use utillib::scheduler::*;
 use utillib::Errors;
 
@@ -10,11 +14,34 @@ fn main() -> Result<(), Errors> {
     let _guard = lock.try_lock();
     match _guard {
         Ok(_) => {
-            // first run
+            // first time run
         }
         Err(e) => match e {
             named_lock::Error::WouldBlock => {
-                // double open, exit
+                //if called by dwm, parse args and call modules
+                let args_vec: Vec<String> = env::args().collect();
+                if args_vec.len() != 3 {
+                    println!(
+                        "Double open paramater error! usage:dwm-statusbar [module] [L|R|M|U|D]"
+                    );
+                    return Ok(());
+                }
+                let config = load_config().unwrap();
+                if let Some(name) = config
+                    .modules
+                    .into_iter()
+                    .map(|item| {
+                        PathBuf::from(item.path_name)
+                            .file_name()
+                            .unwrap()
+                            .to_str()
+                            .unwrap()
+                            .to_string()
+                    })
+                    .find(|x| *x == args_vec[1])
+                {
+                    Command::new("sh").arg("-c").arg(name).spawn().unwrap();
+                };
                 return Ok(());
             }
             _ => {

@@ -73,6 +73,7 @@ pub fn run_scheduler(running: Arc<AtomicBool>) {
                         .read_to_string(&mut msg)
                         .unwrap()
                         .to_string();
+                    println!("msg from childproc:{}", msg);
                     if !check_dwm_msg(&msg) {
                         let name = val.path_name.clone();
                         let name = PathBuf::from(name)
