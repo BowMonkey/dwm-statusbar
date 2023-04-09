@@ -11,7 +11,7 @@ use clokwerk::{Scheduler, TimeUnits};
 use threadpool::ThreadPool;
 use wait_timeout::ChildExt;
 
-use crate::check_dwm_msg;
+use crate::dwm_msg_ok;
 
 use super::config::*;
 pub fn run_scheduler(running: Arc<AtomicBool>) {
@@ -74,7 +74,7 @@ pub fn run_scheduler(running: Arc<AtomicBool>) {
                         .unwrap()
                         .to_string();
                     println!("msg from childproc:{}", msg);
-                    if !check_dwm_msg(&msg) {
+                    if !dwm_msg_ok(&msg) {
                         let name = val.path_name.clone();
                         let name = PathBuf::from(name)
                             .file_name()

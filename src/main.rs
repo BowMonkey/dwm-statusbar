@@ -40,7 +40,12 @@ fn main() -> Result<(), Errors> {
                     })
                     .find(|x| *x == args_vec[1])
                 {
-                    Command::new("sh").arg("-c").arg(name).spawn().unwrap();
+                    Command::new("sh")
+                        .arg("-c")
+                        .arg(name)
+                        .arg(&args_vec[2])
+                        .spawn()
+                        .unwrap();
                 };
                 return Ok(());
             }
