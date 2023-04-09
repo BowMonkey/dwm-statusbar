@@ -1,4 +1,5 @@
 use std::io::Read;
+use std::path::PathBuf;
 use std::process::{Command, Stdio};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::mpsc::channel;
@@ -9,6 +10,8 @@ use std::time::Duration;
 use clokwerk::{Scheduler, TimeUnits};
 use threadpool::ThreadPool;
 use wait_timeout::ChildExt;
+
+use crate::check_dwm_msg;
 
 use super::config::*;
 pub fn run_scheduler(running: Arc<AtomicBool>) {
@@ -70,8 +73,19 @@ pub fn run_scheduler(running: Arc<AtomicBool>) {
                         .read_to_string(&mut msg)
                         .unwrap()
                         .to_string();
-                    //TODO: do message check, if it not valid, send default msg
-                    // defined by user
+                    if !check_dwm_msg(&msg) {
+                        let name = val.path_name.clone();
+                        let name = PathBuf::from(name)
+                            .file_name()
+                            .unwrap()
+                            .to_str()
+                            .unwrap()
+                            .to_string();
+                        msg = "^s".to_owned()
+                            + &name
+                            + "^^c#ff0000^^b#ffffff^^c#ff0000^^b#ffffff^"
+                            + &name;
+                    }
                     dwm_sender_in_thread.send((idx, msg)).unwrap();
                 })
             }
