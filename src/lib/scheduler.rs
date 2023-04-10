@@ -73,7 +73,6 @@ pub fn run_scheduler(running: Arc<AtomicBool>) {
                         .read_to_string(&mut msg)
                         .unwrap()
                         .to_string();
-                    println!("msg from childproc:{}", msg);
                     if !dwm_msg_ok(&msg) {
                         let name = val.path_name.clone();
                         let name = PathBuf::from(name)
@@ -122,10 +121,10 @@ fn last_words() -> String {
 }
 
 fn send_to_dwm(s: String) {
-    println!("Msg to be send:{}", s);
-    let mut _childproc = Command::new("sh")
-        .arg("-c")
-        .arg(s)
-        .spawn()
-        .expect("Faild to call xsetroot command");
+    match Command::new("sh").arg("-c").arg(s).spawn() {
+        Ok(_) => {}
+        Err(e) => {
+            println!("Call xsetroot failed! err:{}", e);
+        }
+    }
 }

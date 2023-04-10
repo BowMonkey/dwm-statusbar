@@ -19,20 +19,20 @@ pub fn dwm_msg_ok(s: &str) -> bool {
 
 use std::process::Command;
 pub fn send_notify(msg: &str, id: u32) {
-    Command::new("sh")
-        .arg("-c")
-        .arg("notify-send")
-        .arg(msg)
-        .arg("-r")
-        .arg(id.to_string())
-        .spawn()
-        .unwrap();
+    let s = "notify-send ".to_string() + msg + " -r " + &id.to_string();
+    Command::new("sh").arg("-c").arg(s).spawn().unwrap();
 }
 
 pub fn send_dwm(msg: &str) {
     let s = "xsetroot -name '".to_string() + msg + "'";
     if dwm_msg_ok(msg) {
-        Command::new("sh").arg("-c").arg(s).spawn().unwrap();
+        match Command::new("sh").arg("-c").arg(&s).spawn() {
+            Ok(_) => {}
+            Err(e) => {
+                //fail is ok, wait next try
+                println!("Call xsetroot failed. cmd:{} err:{}", s, e);
+            }
+        }
     } else {
         println!("dwm msg check failure:{}", msg);
     }

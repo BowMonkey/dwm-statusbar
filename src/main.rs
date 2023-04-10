@@ -27,26 +27,25 @@ fn main() -> Result<(), Errors> {
                     return Ok(());
                 }
                 let config = load_config().unwrap();
-                if let Some(name) = config
-                    .modules
-                    .into_iter()
-                    .map(|item| {
-                        PathBuf::from(item.path_name)
-                            .file_name()
-                            .unwrap()
-                            .to_str()
-                            .unwrap()
-                            .to_string()
-                    })
-                    .find(|x| *x == args_vec[1])
-                {
-                    Command::new("sh")
-                        .arg("-c")
-                        .arg(name)
-                        .arg(&args_vec[2])
-                        .spawn()
-                        .unwrap();
-                };
+                if let Some(modul) = config.modules.into_iter().find(|item| {
+                    let name = PathBuf::from(&item.path_name)
+                        .file_name()
+                        .unwrap()
+                        .to_str()
+                        .unwrap()
+                        .to_string();
+                    name == args_vec[1]
+                }) {
+                    println!("program:{} arg:{}", &modul.path_name, &args_vec[2]);
+                    match Command::new(&modul.path_name).arg(&args_vec[2]).spawn() {
+                        Ok(_) => {}
+                        Err(e) => {
+                            // fail is ok, wait next try
+                            println!("Call proc failed. cmd:{} err:{}", modul.path_name, e);
+                        }
+                    }
+                }
+
                 return Ok(());
             }
             _ => {
