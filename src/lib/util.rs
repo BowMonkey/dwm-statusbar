@@ -26,7 +26,11 @@ pub fn send_notify(msg: &str, id: u32) {
 pub fn send_dwm(msg: &str) {
     let s = "xsetroot -name '".to_string() + msg + "'";
     if dwm_msg_ok(msg) {
-        match Command::new("sh").arg("-c").arg(&s).spawn() {
+        match Command::new("sh")
+            .arg("-c")
+            .arg(" ".to_string() + &s + " ")
+            .spawn()
+        {
             Ok(_) => {}
             Err(e) => {
                 //fail is ok, wait next try
@@ -46,4 +50,29 @@ pub fn calc_notify_id(s: &str) -> u32 {
         }
     }
     res
+}
+
+use std::io::Read;
+use std::process::Stdio;
+use std::time::Duration;
+use wait_timeout::ChildExt;
+pub fn get_proc_info(cmd: &str, tm: u64) -> String {
+    let mut childproc = Command::new("sh")
+        .arg("-c")
+        .arg(cmd)
+        .stdout(Stdio::piped())
+        .spawn()
+        .unwrap();
+    let secs = Duration::from_secs(tm);
+    let _status_code = match childproc.wait_timeout(secs).unwrap() {
+        Some(status) => status.code(),
+        None => {
+            childproc.kill().unwrap();
+            childproc.wait().unwrap().code()
+        }
+    };
+    let mut msg = String::new();
+    childproc.stdout.unwrap().read_to_string(&mut msg).unwrap();
+
+    msg.trim_end().to_string()
 }

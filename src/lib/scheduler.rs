@@ -97,20 +97,20 @@ pub fn run_scheduler(running: Arc<AtomicBool>) {
     /****************************************
      * 4. update result and send messages to dwm
      ****************************************/
-    let scheduler_handle = scheduler.watch_thread(Duration::from_millis(500));
+    let scheduler_handle = scheduler.watch_thread(Duration::from_millis(200));
     let mut dwm_msgs = vec!["".to_string(); config_num];
-    //refresh dwm every 200ms
+    //refresh dwm every 400ms
     while running.load(Ordering::SeqCst) {
         if let Ok((idx, msg)) = dwm_recver.try_recv() {
             dwm_msgs[idx] = msg;
-            let mut msg = String::from("xsetroot -name '");
-            for item in dwm_msgs.iter() {
-                msg += item;
-            }
-            msg += "'";
-            send_to_dwm(msg);
         }
-        thread::sleep(Duration::from_millis(200));
+        let mut msg = String::from("xsetroot -name '");
+        for item in dwm_msgs.iter() {
+            msg += item;
+        }
+        msg += "'";
+        send_to_dwm(msg);
+        thread::sleep(Duration::from_millis(100));
     }
     scheduler_handle.stop();
     worker_join_handle.join().unwrap();

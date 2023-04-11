@@ -1,18 +1,22 @@
-use chrono::prelude::*;
 use std::env;
+use std::process::Command;
 
-use utillib::util::{calc_notify_id, send_dwm, send_notify};
+use utillib::util::{calc_notify_id, get_proc_info, send_dwm, send_notify};
 
 fn main() {
-    let now = Local::now().format("%Y-%m-%d %H:%M:%S").to_string();
+    let mut click_event = false;
     let args_vec: Vec<String> = env::args().collect();
     if args_vec.len() > 2 {
         println!("Open paramater error! usage:date [L|R|M|U|D]");
         return;
     } else if args_vec.len() == 2 {
+        click_event = true;
+    }
+
+    if click_event {
         match args_vec[1].as_str() {
             "L" | "l" => {
-                left_click(now.clone());
+                left_click();
             }
             "R" | "r" => {
                 right_click();
@@ -33,29 +37,34 @@ fn main() {
                 );
             }
         }
+    } else {
+        print!(
+            "{}",
+            create_dwm_msg("MusicPre".to_string(), " 󰒮".to_string(), "".to_string())
+        );
     }
-
-    print!("{}", create_dwm_msg(&now));
-    //send_dwm(&create_dwm_msg(&now));
 }
 
-fn left_click(time: String) {
-    let msg = r#" " Calendar" ""#.to_string() + &time + r#"""#;
-    send_notify(&msg, calc_notify_id("date"));
+fn left_click() {
+    call_proc("playerctl previous -p chromium");
 }
 fn right_click() {}
 fn middle_click() {}
 fn up_roll() {}
 fn down_rol() {}
 
-fn create_dwm_msg(s: &str) -> String {
-    let title = "^s".to_string() + "date" + "^";
+fn create_dwm_msg(title: String, icon: String, text: String) -> String {
+    let title = "^s".to_string() + &title + "^";
     let ic_fg_color = "^c".to_string() + "#1e222a" + "^";
-    let ic_bg_color = "^b".to_string() + "#81a1c1" + "^";
-    let ic = "".to_string();
+    let ic_bg_color = "^b".to_string() + "#81A1C1" + "^";
+    let ic = icon;
     let tx_fg_color = "^c".to_string() + "#1e222a" + "^";
-    let tx_bg_color = "^b".to_string() + "#81a1c1" + "^";
-    let tx = s.to_string();
+    let tx_bg_color = "^b".to_string() + "#81A1C1" + "^";
+    let tx = text;
 
-    title + &ic_fg_color + &ic_bg_color + &ic + &tx_fg_color + &tx_bg_color + &tx
+    title + &ic_fg_color + &ic_bg_color + &ic + &tx_fg_color + &tx_bg_color + tx.trim_end()
+}
+
+pub fn call_proc(cmd: &str) {
+    Command::new("sh").arg("-c").arg(cmd).spawn().unwrap();
 }
