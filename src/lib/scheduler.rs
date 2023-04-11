@@ -104,11 +104,11 @@ pub fn run_scheduler(running: Arc<AtomicBool>) {
         if let Ok((idx, msg)) = dwm_recver.try_recv() {
             dwm_msgs[idx] = msg;
         }
-        let mut msg = String::from("xsetroot -name '");
+        let mut msg = String::from("xsetroot -name \"");
         for item in dwm_msgs.iter() {
             msg += item;
         }
-        msg += "'";
+        msg += "\"";
         send_to_dwm(msg);
         thread::sleep(Duration::from_millis(100));
     }

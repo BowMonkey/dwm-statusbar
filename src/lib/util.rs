@@ -24,7 +24,7 @@ pub fn send_notify(msg: &str, id: u32) {
 }
 
 pub fn send_dwm(msg: &str) {
-    let s = "xsetroot -name '".to_string() + msg + "'";
+    let s = "xsetroot -name \"".to_string() + msg + "\"";
     if dwm_msg_ok(msg) {
         match Command::new("sh")
             .arg("-c")
