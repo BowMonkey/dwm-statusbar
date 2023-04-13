@@ -20,22 +20,24 @@ pub fn dwm_msg_ok(s: &str) -> bool {
 use std::process::Command;
 pub fn send_notify(msg: &str, id: u32) {
     let s = "notify-send ".to_string() + msg + " -r " + &id.to_string();
-    Command::new("sh").arg("-c").arg(s).spawn().unwrap();
+    if let Ok(mut childproc) = Command::new("sh").arg("-c").arg(s).spawn() {
+        childproc
+            .wait_timeout(Duration::from_secs(1 as u64))
+            .unwrap();
+    }
 }
 
+use std::thread;
 pub fn send_dwm(msg: &str) {
     let s = "xsetroot -name \"".to_string() + msg + "\"";
     if dwm_msg_ok(msg) {
-        match Command::new("sh")
+        if let Ok(mut childproc) = Command::new("sh")
             .arg("-c")
             .arg(" ".to_string() + &s + " ")
             .spawn()
         {
-            Ok(_) => {}
-            Err(e) => {
-                //fail is ok, wait next try
-                println!("Call xsetroot failed. cmd:{} err:{}", s, e);
-            }
+            thread::sleep(Duration::from_millis(100));
+            childproc.wait().unwrap();
         }
     } else {
         println!("dwm msg check failure:{}", msg);
@@ -57,22 +59,26 @@ use std::process::Stdio;
 use std::time::Duration;
 use wait_timeout::ChildExt;
 pub fn get_proc_info(cmd: &str, tm: u64) -> String {
-    let mut childproc = Command::new("sh")
+    if let Ok(mut childproc) = Command::new("sh")
         .arg("-c")
         .arg(cmd)
         .stdout(Stdio::piped())
         .spawn()
-        .unwrap();
-    let secs = Duration::from_secs(tm);
-    let _status_code = match childproc.wait_timeout(secs).unwrap() {
-        Some(status) => status.code(),
-        None => {
-            childproc.kill().unwrap();
-            childproc.wait().unwrap().code()
-        }
-    };
-    let mut msg = String::new();
-    childproc.stdout.unwrap().read_to_string(&mut msg).unwrap();
+    {
+        let secs = Duration::from_secs(tm);
+        let _status_code = match childproc.wait_timeout(secs).unwrap() {
+            Some(status) => status.code(),
+            None => {
+                childproc.kill().unwrap();
+                childproc.wait().unwrap().code()
+            }
+        };
+        let mut msg = String::new();
+        let mut out = childproc.stdout.take().unwrap();
+        out.read_to_string(&mut msg).unwrap();
+        childproc.wait().unwrap();
 
-    msg.trim_end().to_string()
+        return msg.trim_end().to_string();
+    }
+    "".to_string()
 }

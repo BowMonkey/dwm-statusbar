@@ -36,7 +36,6 @@ fn main() -> Result<(), Errors> {
                         .to_string();
                     name == args_vec[1]
                 }) {
-                    println!("program:{} arg:{}", &modul.path_name, &args_vec[2]);
                     match Command::new(&modul.path_name).arg(&args_vec[2]).spawn() {
                         Ok(_) => {}
                         Err(e) => {

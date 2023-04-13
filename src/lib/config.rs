@@ -27,7 +27,7 @@ impl Config {
         let mut config_file_path = env::current_exe().unwrap();
         config_file_path.pop();
         config_file_path.push("statusbar.json");
-        dbg!(config_file_path)
+        config_file_path
     }
 
     pub fn config_file_exist() -> bool {

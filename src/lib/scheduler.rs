@@ -41,11 +41,13 @@ pub fn run_scheduler(running: Arc<AtomicBool>) {
     let (dwm_sender, dwm_recver) = channel();
     let mut dwm_msgs = vec!["".to_string(); config_num];
     let pool = ThreadPool::new(4);
+
     while running.load(Ordering::SeqCst) {
         while let Ok((idx, val)) = rcver.try_recv() {
             let dwm_sender_in_thread = dwm_sender.clone();
             pool.execute(move || {
-                if let Ok(mut childproc) = Command::new("sh")
+                let mut proc_handle = Command::new("sh");
+                if let Ok(mut childproc) = proc_handle
                     .arg("-c")
                     .arg(&val.path_name)
                     .stdout(Stdio::piped())
@@ -60,12 +62,8 @@ pub fn run_scheduler(running: Arc<AtomicBool>) {
                         }
                     };
                     let mut msg = String::new();
-                    childproc
-                        .stdout
-                        .unwrap()
-                        .read_to_string(&mut msg)
-                        .unwrap()
-                        .to_string();
+                    let mut out = childproc.stdout.take().unwrap();
+                    out.read_to_string(&mut msg).unwrap().to_string();
                     if !dwm_msg_ok(&msg) {
                         let name = val.path_name.clone();
                         let name = PathBuf::from(name)
@@ -80,8 +78,9 @@ pub fn run_scheduler(running: Arc<AtomicBool>) {
                             + &name;
                     }
                     dwm_sender_in_thread.send((idx, msg)).unwrap();
+                    childproc.wait().unwrap();
                 }
-            })
+            });
         }
         thread::sleep(Duration::from_millis(100));
         /****************************************
@@ -89,13 +88,13 @@ pub fn run_scheduler(running: Arc<AtomicBool>) {
          ****************************************/
         while let Ok((idx, msg)) = dwm_recver.try_recv() {
             dwm_msgs[idx] = msg;
+            let mut msg = String::from("xsetroot -name \"");
+            for item in dwm_msgs.iter() {
+                msg += item;
+            }
+            msg += "\"";
+            send_to_dwm(msg);
         }
-        let mut msg = String::from("xsetroot -name \"");
-        for item in dwm_msgs.iter() {
-            msg += item;
-        }
-        msg += "\"";
-        send_to_dwm(msg);
     }
 
     scheduler_handle.stop();
@@ -105,12 +104,9 @@ pub fn run_scheduler(running: Arc<AtomicBool>) {
 fn last_words() -> String {
     String::from("xsetroot -name ''")
 }
-
 fn send_to_dwm(s: String) {
-    match Command::new("sh").arg("-c").arg(s).spawn() {
-        Ok(_) => {}
-        Err(e) => {
-            println!("Call xsetroot failed! err:{}", e);
-        }
+    if let Ok(mut childproc) = Command::new("sh").arg("-c").arg(s).spawn() {
+        thread::sleep(Duration::from_millis(100));
+        childproc.wait().unwrap();
     }
 }

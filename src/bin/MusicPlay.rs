@@ -23,10 +23,13 @@ fn main() {
         icon = "".to_string();
     }
 
-    let play_text = get_proc_info(
+    let mut play_text = get_proc_info(
         "playerctl metadata -p chromium --format '{{ artist }}-{{ title }}'",
         1,
     );
+    if play_text == "No players found" {
+        play_text = "".to_string();
+    }
 
     if click_event {
         match args_vec[1].as_str() {
