@@ -84,7 +84,7 @@ fn create_dwm_msg(title: String, icon: String, text: String) -> String {
     let tx_bg_color = "^b".to_string() + "#81A1C1" + "^";
     let tx = text;
 
-    title + &ic_fg_color + &ic_bg_color + &ic + &tx_fg_color + &tx_bg_color + tx.trim_end()
+    title + &ic_fg_color + &ic_bg_color + " " + &ic + &tx_fg_color + &tx_bg_color + &tx + " "
 }
 
 fn call_proc(cmd: &str) {

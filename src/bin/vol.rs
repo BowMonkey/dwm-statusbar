@@ -80,11 +80,11 @@ fn middle_click() {
     call_proc("/home/coco/Desktop/dwm/statusbar/bin/vol L")
 }
 fn up_roll() {
-    call_proc("pactl set-sink-volume @DEFAULT_SINK@ +2%");
+    call_proc("pactl set-sink-volume @DEFAULT_SINK@ +5%");
     call_proc("/home/coco/Desktop/dwm/statusbar/bin/vol L")
 }
 fn down_rol() {
-    call_proc("pactl set-sink-volume @DEFAULT_SINK@ -2%");
+    call_proc("pactl set-sink-volume @DEFAULT_SINK@ -5%");
     call_proc("/home/coco/Desktop/dwm/statusbar/bin/vol L")
 }
 
@@ -97,7 +97,7 @@ fn create_dwm_msg(icon: String, text: String) -> String {
     let tx_bg_color = "^b".to_string() + "#81A1C1" + "^";
     let tx = text;
 
-    title + &ic_fg_color + &ic_bg_color + &ic + &tx_fg_color + &tx_bg_color + &tx
+    title + &ic_fg_color + &ic_bg_color + " " + &ic + &tx_fg_color + &tx_bg_color + &tx + " "
 }
 
 pub fn call_proc(cmd: &str) {
